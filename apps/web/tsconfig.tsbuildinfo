@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/components/ui.tsx","./src/data/mock.ts","./src/pages/Assistente.tsx","./src/pages/Cidadao.tsx","./src/pages/Gabinete.tsx","./src/pages/Mapa.tsx","./src/pages/Plenario.tsx","./src/pages/Presidencia.tsx","./src/pages/Processo.tsx","./src/pages/Radar.tsx"],"version":"5.6.3"}
