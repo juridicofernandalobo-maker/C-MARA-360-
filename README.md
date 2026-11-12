@@ -14,30 +14,56 @@ Plataforma SaaS multi-institucional para Câmaras Municipais, que reúne em um s
 
 ```
 camara-360/
-├── apps/
-│   └── web/            Protótipo navegável das 8 telas estratégicas (React + Vite + TypeScript)
 ├── packages/
-│   └── db/             Modelo de dados inicial (Prisma / PostgreSQL)
+│   └── rito/           Motor de ritos legislativos configuráveis (TypeScript puro, 33 testes)
+├── apps/
+│   ├── api/            Backend do MVP — NestJS + PostgreSQL (Prisma), 17 testes de ponta a ponta
+│   └── web/            Protótipo navegável das 8 telas estratégicas (React + Vite)
 └── docs/
     ├── 01-conceito.md          Proposta de valor, públicos e diferenciais
     ├── 02-arquitetura.md       12 módulos, arquitetura técnica e stack
-    ├── 03-matriz-legal.md      Requisitos legais por módulo (CF, LRF, LGPD, 14.133, eleitoral…)
-    └── 04-roadmap-mvp.md       Etapas, escopo do MVP e roteiro das demonstrações
+    ├── 03-matriz-legal.md      Requisitos legais por módulo
+    ├── 04-roadmap-mvp.md       Etapas, escopo do MVP e demonstrações
+    ├── 05-api.md               Endpoints, perfis de acesso e exemplos
+    └── 06-motor-de-ritos.md    Como o motor aplica a Lei Orgânica e o Regimento
 ```
 
-## Como rodar o protótipo
+## Como rodar
 
-Requisitos: [Node.js 20+](https://nodejs.org).
+Requisitos: [Node.js 20+](https://nodejs.org) e [Docker](https://www.docker.com/) (para o banco de dados).
 
 ```bash
-cd apps/web
 npm install
-npm run dev
 ```
 
-Abra o endereço exibido no terminal (normalmente http://localhost:5173).
+**Protótipo visual** (não precisa de banco):
 
-> Todos os dados exibidos no protótipo são **fictícios**. Nenhum alerta representa constatação sobre ente público real.
+```bash
+npm run dev:web
+```
+
+**Backend (API):**
+
+```bash
+docker compose up -d
+cp apps/api/.env.example apps/api/.env
+npm run build -w @camara360/rito
+npm run db:migrate -w @camara360/api
+npm run db:seed -w @camara360/api
+npm run dev:api
+```
+
+A API fica em http://localhost:3000/api. O seed cria a Câmara fictícia `vale-verde` com usuários de demonstração (senha `Camara360@demo`) — veja `docs/05-api.md`.
+
+**Testes:**
+
+```bash
+npm test
+```
+
+> Os testes da API apagam e recriam o banco indicado em `DATABASE_URL_TESTE` (padrão: `camara360_test` local). Nunca aponte para um banco com dados reais.
+
+> Todos os dados de demonstração são **fictícios**.
 
 ## Princípios inegociáveis do produto
 

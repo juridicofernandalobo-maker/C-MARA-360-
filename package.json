@@ -1,0 +1,11 @@
+{
+  "name": "camara-360",
+  "private": true,
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "build": "npm run build -w @camara360/rito && npm run build -w @camara360/api && npm run build -w @camara360/web",
+    "test": "npm test -w @camara360/rito && npm test -w @camara360/api",
+    "dev:web": "npm run dev -w @camara360/web",
+    "dev:api": "npm run build -w @camara360/rito && npm run dev -w @camara360/api"
+  }
+}

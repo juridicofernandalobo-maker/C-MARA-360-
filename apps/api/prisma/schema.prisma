@@ -1,0 +1,159 @@
+// Câmara 360º — modelo de dados do MVP (Etapa 1)
+// Multi-institucional: todo dado de negócio carrega camaraId e é filtrado por ele em todas as consultas.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Camara {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  nome        String
+  municipio   String
+  uf          String   @db.Char(2)
+  codigoIbge  String   @unique
+  cnpj        String   @unique
+  /// Exige autenticação em dois fatores de todos os usuários.
+  exigirMfa   Boolean  @default(true)
+  ativa       Boolean  @default(true)
+  /// RegrasCasa do motor de ritos (quóruns, prazos, feriados, iniciativa privativa).
+  regras      Json
+  criadoEm    DateTime @default(now())
+
+  usuarios      Usuario[]
+  parlamentares Parlamentar[]
+  comissoes     Comissao[]
+  especies      EspecieNormativa[]
+  proposicoes   Proposicao[]
+}
+
+model Parlamentar {
+  id              String   @id @default(uuid())
+  camaraId        String
+  camara          Camara   @relation(fields: [camaraId], references: [id])
+  nomeParlamentar String
+  nomeCivil       String
+  partido         String?
+  ativo           Boolean  @default(true)
+  criadoEm        DateTime @default(now())
+
+  usuarios    Usuario[]
+  proposicoes Proposicao[]
+
+  @@index([camaraId])
+}
+
+model Usuario {
+  id            String       @id @default(uuid())
+  /// Nulo apenas para administradores da plataforma.
+  camaraId      String?
+  camara        Camara?      @relation(fields: [camaraId], references: [id])
+  nome          String
+  email         String
+  senhaHash     String
+  /// plataforma | administrador | presidente | mesa | vereador | assessor | servidor | procurador
+  papeis        String[]
+  /// Vereador: o próprio mandato. Assessor: o gabinete em que atua.
+  parlamentarId String?
+  parlamentar   Parlamentar? @relation(fields: [parlamentarId], references: [id])
+  mfaSecret     String?
+  mfaAtivo      Boolean      @default(false)
+  ativo         Boolean      @default(true)
+  ultimoLogin   DateTime?
+  criadoEm      DateTime     @default(now())
+
+  @@unique([camaraId, email])
+}
+
+model Comissao {
+  id         String  @id @default(uuid())
+  camaraId   String
+  camara     Camara  @relation(fields: [camaraId], references: [id])
+  sigla      String
+  nome       String
+  permanente Boolean @default(true)
+
+  @@unique([camaraId, sigla])
+}
+
+model EspecieNormativa {
+  id          String       @id @default(uuid())
+  camaraId    String
+  camara      Camara       @relation(fields: [camaraId], references: [id])
+  sigla       String
+  /// EspecieConfig do motor de ritos.
+  config      Json
+  ativa       Boolean      @default(true)
+  proposicoes Proposicao[]
+
+  @@unique([camaraId, sigla])
+}
+
+model Proposicao {
+  id                 String           @id @default(uuid())
+  camaraId           String
+  camara             Camara           @relation(fields: [camaraId], references: [id])
+  especieId          String
+  especie            EspecieNormativa @relation(fields: [especieId], references: [id])
+  /// Atribuído no protocolo.
+  numero             Int?
+  ano                Int
+  ementa             String
+  texto              String
+  /// SHA-256 do texto no momento do protocolo (integridade documental).
+  hashTexto          String?
+  autorTipo          String
+  autorParlamentarId String?
+  autorParlamentar   Parlamentar?     @relation(fields: [autorParlamentarId], references: [id])
+  /// Para autores externos (Prefeito, iniciativa popular, comissão).
+  autorDescricao     String?
+  materias           String[]
+  regime             String           @default("ordinario")
+  estado             String
+  /// Estado completo do motor de ritos.
+  tramitacao         Json
+  criadoPorId        String
+  criadoEm           DateTime         @default(now())
+  protocoladaEm      DateTime?
+
+  movimentacoes Movimentacao[]
+
+  @@unique([camaraId, especieId, ano, numero])
+  @@index([camaraId, estado])
+}
+
+model Movimentacao {
+  id             String     @id @default(uuid())
+  camaraId       String
+  proposicaoId   String
+  proposicao     Proposicao @relation(fields: [proposicaoId], references: [id])
+  acao           String
+  dados          Json
+  descricao      String
+  fundamento     String?
+  estadoAnterior String
+  estadoNovo     String
+  usuarioId      String
+  em             DateTime   @default(now())
+
+  @@index([proposicaoId])
+}
+
+model Auditoria {
+  id        BigInt   @id @default(autoincrement())
+  camaraId  String?
+  usuarioId String?
+  metodo    String
+  rota      String
+  status    Int
+  corpo     Json?
+  ip        String?
+  em        DateTime @default(now())
+
+  @@index([camaraId, em])
+}

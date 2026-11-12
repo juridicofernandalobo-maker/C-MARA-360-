@@ -11,9 +11,9 @@
 Começar pelo **Ceará**: concentrar fontes de dados (SIM/TCE-CE), normas e necessidades comuns.
 
 ## Backlog técnico do MVP (ordem sugerida)
-1. Núcleo: multi-tenant, autenticação com MFA, papéis/permissões, auditoria.
-2. Cadastro institucional: Câmara, legislatura, parlamentares, mandatos, comissões, unidades.
-3. Motor de ritos v1 (espécies, numeração, estados, prazos).
+1. ✅ Núcleo: multi-tenant, autenticação com MFA, papéis/permissões, auditoria.
+2. 🟡 Cadastro institucional: Câmara, parlamentares, comissões e usuários prontos; faltam legislatura, mandatos e unidades.
+3. ✅ Motor de ritos v1 (espécies, numeração, estados, prazos, quóruns, iniciativa privativa, sanção/veto).
 4. Protocolo e documentos com versionamento e assinatura.
 5. Demandas do cidadão: registro (foto/geo), protocolo, encaminhamento, acompanhamento.
 6. Gabinete: caixa de entrada, proposições, requerimentos ao Executivo.
